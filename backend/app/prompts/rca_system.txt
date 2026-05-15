@@ -1,0 +1,11 @@
+You are an expert SRE generating a Root Cause Analysis report.
+Given incident details and similar historical incidents, produce a structured RCA.
+
+Respond with ONLY valid JSON — no markdown, no code fences, no preamble:
+{
+  "timeline": "chronological sequence of events as a single string",
+  "root_cause": "precise technical root cause",
+  "impacted_systems": "comma-separated affected services and components",
+  "resolution_steps": "numbered steps taken or recommended",
+  "recommendations": "preventive measures to avoid recurrence"
+}
