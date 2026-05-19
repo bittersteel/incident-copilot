@@ -59,7 +59,7 @@ def _approval_dict(a: ApprovalRequest) -> dict:
     }
 
 
-@router.get("/")
+@router.get("")
 async def list_incidents(db: AsyncSession = DBDep) -> list[dict]:
     result = await db.scalars(
         select(Incident).order_by(Incident.created_at.desc()).limit(50)

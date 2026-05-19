@@ -12,9 +12,12 @@ CHAT_SYSTEM = (Path(__file__).parent.parent / "prompts/chat_system.txt").read_te
 RCA_SYSTEM = (Path(__file__).parent.parent / "prompts/rca_system.txt").read_text()
 
 
+MODEL = "claude-sonnet-4-6"
+
+
 async def stream_chat(messages: list[dict], system: str = CHAT_SYSTEM) -> AsyncIterator[str]:
     async with client.messages.stream(
-        model="claude-sonnet-4-20250514",
+        model=MODEL,
         max_tokens=1024,
         system=system,
         messages=messages,
@@ -25,7 +28,7 @@ async def stream_chat(messages: list[dict], system: str = CHAT_SYSTEM) -> AsyncI
 
 async def complete(messages: list[dict], system: str = RCA_SYSTEM) -> str:
     response = await client.messages.create(
-        model="claude-sonnet-4-20250514",
+        model=MODEL,
         max_tokens=2048,
         system=system,
         messages=messages,
