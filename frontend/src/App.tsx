@@ -67,11 +67,20 @@ export default function App() {
             onChange={e => setActiveIncidentId(e.target.value || undefined)}
           >
             <option value="">No incident selected</option>
-            {incidents.map(inc => (
-              <option key={inc.id} value={inc.id}>
-                {truncate(`[${inc.severity}] ${inc.title}`, 60)}
-              </option>
-            ))}
+            {(['open', 'mitigating', 'resolved'] as const).map(status => {
+              const group = incidents.filter(i => i.status === status)
+              if (group.length === 0) return null
+              const label = status === 'open' ? 'Open' : status === 'mitigating' ? 'Mitigating' : 'Resolved'
+              return (
+                <optgroup key={status} label={label}>
+                  {group.map(inc => (
+                    <option key={inc.id} value={inc.id}>
+                      {truncate(`[${inc.severity}] ${inc.title}`, 60)}
+                    </option>
+                  ))}
+                </optgroup>
+              )
+            })}
           </select>
         </div>
         {loadError ? <span className="text-xs text-red-600">{loadError}</span> : <span className="w-24" />}
