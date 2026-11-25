@@ -6,6 +6,7 @@ const API_KEY = import.meta.env.VITE_API_KEY ?? 'dev-secret'
 export function useChat() {
   const [messages, setMessages] = useState<Message[]>([])
   const [isLoading, setIsLoading] = useState(false)
+  const [agentStatus, setAgentStatus] = useState<string | null>(null)
 
   const sendMessage = useCallback(async (text: string, incidentId?: string) => {
     const userMessage: Message = {
@@ -23,6 +24,7 @@ export function useChat() {
 
     setMessages(prev => [...prev, userMessage, assistantMessage])
     setIsLoading(true)
+    setAgentStatus(null)
 
     try {
       const history = messages.map(m => ({ role: m.role, content: m.content }))
@@ -60,7 +62,24 @@ export function useChat() {
           if (!jsonStr) continue
 
           try {
-            const event = JSON.parse(jsonStr) as { delta?: string; done?: boolean; citations?: Citation[] }
+            const event = JSON.parse(jsonStr) as {
+              delta?: string
+              done?: boolean
+              citations?: Citation[]
+              agent?: string
+              status?: 'running' | 'done'
+              label?: string
+            }
+
+            // ── Multi-agent status events ──────────────────────────────────
+            if (event.agent && event.status === 'running' && event.label) {
+              setAgentStatus(event.label)
+            }
+            if (event.agent && event.status === 'done' && event.agent === 'responder') {
+              setAgentStatus(null)
+            }
+
+            // ── Streaming text delta ───────────────────────────────────────
             if (event.delta) {
               setMessages(prev =>
                 prev.map(m =>
@@ -70,6 +89,8 @@ export function useChat() {
                 )
               )
             }
+
+            // ── Final done event ───────────────────────────────────────────
             if (event.done) {
               citations = event.citations ?? []
             }
@@ -90,14 +111,19 @@ export function useChat() {
       setMessages(prev =>
         prev.map(m =>
           m.id === assistantId
-            ? { ...m, content: 'Error: failed to get response. Check API key and backend.', isStreaming: false }
+            ? {
+                ...m,
+                content: 'Error: failed to get response. Check API key and backend.',
+                isStreaming: false,
+              }
             : m
         )
       )
     } finally {
       setIsLoading(false)
+      setAgentStatus(null)
     }
   }, [messages])
 
-  return { messages, isLoading, sendMessage }
+  return { messages, isLoading, agentStatus, sendMessage }
 }

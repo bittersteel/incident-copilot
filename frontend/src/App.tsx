@@ -14,7 +14,7 @@ function truncate(s: string, max: number): string {
 }
 
 export default function App() {
-  const { messages, isLoading, sendMessage } = useChat()
+  const { messages, isLoading, agentStatus, sendMessage } = useChat()
   const [incidents, setIncidents] = useState<Incident[]>([])
   const [activeIncidentId, setActiveIncidentId] = useState<string | undefined>(undefined)
   const [loadError, setLoadError] = useState<string | null>(null)
@@ -92,6 +92,7 @@ export default function App() {
             incidentId={activeIncidentId}
             messages={messages}
             isLoading={isLoading}
+            agentStatus={agentStatus}
             sendMessage={sendMessage}
           />
         </div>

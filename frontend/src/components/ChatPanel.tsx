@@ -7,6 +7,7 @@ type ChatPanelProps = {
   incidentId?: string
   messages: Message[]
   isLoading: boolean
+  agentStatus: string | null
   sendMessage: (text: string, incidentId?: string) => Promise<void>
 }
 
@@ -17,7 +18,7 @@ function approvalDescription(text: string): string {
   return tail && tail.length > 0 ? tail : 'This action may affect production systems.'
 }
 
-export function ChatPanel({ incidentId, messages, isLoading, sendMessage }: ChatPanelProps) {
+export function ChatPanel({ incidentId, messages, isLoading, agentStatus, sendMessage }: ChatPanelProps) {
   const [input, setInput] = useState('')
   const bottomRef = useRef<HTMLDivElement | null>(null)
 
@@ -61,6 +62,17 @@ export function ChatPanel({ incidentId, messages, isLoading, sendMessage }: Chat
           />
         </div>
       </header>
+
+      {/* Agent activity bar — visible while the multi-agent pipeline is running */}
+      {agentStatus && (
+        <div className="flex items-center gap-2 border-b border-indigo-100 bg-indigo-50 px-4 py-2 text-xs text-indigo-700 dark:border-indigo-900 dark:bg-indigo-950/40 dark:text-indigo-300">
+          <span className="relative flex h-2 w-2 shrink-0">
+            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-indigo-400 opacity-75" />
+            <span className="relative inline-flex h-2 w-2 rounded-full bg-indigo-500" />
+          </span>
+          {agentStatus}
+        </div>
+      )}
 
       <div className="min-h-0 flex-1 space-y-3 overflow-y-auto px-4 py-4">
         {messages.length === 0 ? (
